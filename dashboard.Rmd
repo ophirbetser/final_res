@@ -1,0 +1,194 @@
+---
+title: "Final Big ata"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    source_code: embed
+runtime: shiny
+---
+
+
+
+
+```{r global}
+# load librarys
+if (!require("pacman")){                                  
+    install.packages("pacman")}                       
+pacman::p_load(
+  pacman,
+  data.table,
+  tidyverse,
+  ggeasy,
+  Rcpp,
+  glue,
+  flexdashboard,
+  stringi
+  )
+
+library(pacman)
+library(data.table)
+library(tidyverse)
+library(ggeasy)
+library(Rcpp)
+library(glue)
+library(flexdashboard)
+library(stringi)
+library(DT)
+
+
+dt_ <- function(df){
+  DT::datatable(
+  df, 
+  extensions = c('Buttons', 'ColReorder', 'Scroller'),
+  options = list(
+    dom = 'Brtip',
+    buttons = c('copy', 'csv', 'pdf', 'colvis'),
+    colReorder = list(realtime = FALSE),
+    scroller = TRUE,
+    initComplete = JS(
+    "function(settings, json) {",
+    "$(this.api().table().header()).css({'background-color': '#000', 'color': '#fff'});",
+    "}")
+  )
+)
+}
+```
+
+```{r}
+data <- fread('students_data.csv')
+
+date_start <- "2021-08-18"
+date_end <- "2021-09-01"
+
+
+
+
+
+```
+
+
+
+# תוצאות על פי קבוצה
+
+Column {.sidebar}
+-----------------------------------------------------------------------
+
+```{r}
+# set the user selecton sidebar
+selectInput(
+  'group',
+  label = 'בחר קבוצה',
+  seq(1, 28, 1),
+  selected= '1'
+  )
+
+```
+
+Column
+-----------------------------------------------------------------------
+
+### :
+
+```{r}
+renderPlot({
+  data[variable %between% c(date_start, date_end)] %>% 
+  ggplot() +
+    geom_line(aes_string(x = "variable", y = "value"),
+               color = 'red') +
+    geom_point(aes_string(x = "variable", y = glue("pred_group_{input$group}"))) +
+    facet_grid(transportation_type~region) +
+    theme_bw() +
+      labs(
+        title = "red is real! black is pred "
+        )
+  
+})
+```
+
+
+# השוואת קבוצות לפי מדינה מסויימת
+
+
+
+Column {.sidebar}
+-----------------------------------------------------------------------
+
+```{r}
+# set the user selecton sidebar
+selectInput(
+  'group_1',
+  label = 'בחר קבוצה ראשונה',
+  seq(1, 28, 1),
+  selected= '1'
+  )
+
+selectInput(
+  'group_2',
+  label = 'בחר קבוצה שניה',
+  seq(1, 28, 1),
+  selected= '2'
+  )
+
+selectInput(
+  'region',
+  label = 'בחר מדינה',
+  unique(data$region),
+  selected = unique(data$region)[1]
+  )
+
+
+```
+
+Column
+-----------------------------------------------------------------------
+
+### :
+
+```{r}
+ophir <- "ophir"
+renderPlot({
+  data[variable %between% c(date_start, date_end) & region == input$region] %>% 
+  ggplot() +
+    geom_line(aes_string(x = "variable", y = "value", fill = "ophir"),
+               color = 'red') +
+    geom_point(aes_string(x = "variable", y = glue("pred_group_{input$group_1}"))) +
+    facet_grid(transportation_type~.) +
+    theme_bw() +
+      labs(
+        title = glue("group {input$group_1}")
+        )
+  
+})
+```
+
+
+
+Column
+-----------------------------------------------------------------------
+
+### :
+
+```{r}
+renderPlot({
+  data[variable %between% c(date_start, date_end) & region == input$region] %>% 
+  ggplot() +
+    geom_line(aes_string(x = "variable", y = "value"),
+               color = 'red') +
+    geom_point(aes_string(x = "variable", y = glue("pred_group_{input$group_2}"))) +
+    facet_grid(transportation_type~.) +
+    theme_bw() +
+      labs(
+        title = glue("group {input$group_2}")
+        )
+})
+```
+
+
+
+
+# נתונים גולמיים
+
+```{r}
+data %>% dt_
+```
+
