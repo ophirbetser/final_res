@@ -78,7 +78,7 @@ Column {.sidebar}
 selectInput(
   'group',
   label = 'בחר קבוצה',
-  seq(1, 28, 1),
+  seq(1, 29, 1),
   selected= '1'
   )
 
@@ -118,14 +118,14 @@ Column {.sidebar}
 selectInput(
   'group_1',
   label = 'בחר קבוצה ראשונה',
-  seq(1, 28, 1),
+  seq(1, 29, 1),
   selected= '1'
   )
 
 selectInput(
   'group_2',
   label = 'בחר קבוצה שניה',
-  seq(1, 28, 1),
+  seq(1, 29, 1),
   selected= '2'
   )
 
