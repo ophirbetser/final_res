@@ -1,5 +1,5 @@
 ---
-title: "Final Big ata"
+title: "Final Big Data"
 output: 
   flexdashboard::flex_dashboard:
     orientation: columns
